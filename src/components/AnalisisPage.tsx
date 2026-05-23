@@ -16,9 +16,10 @@ interface Stats {
 
 interface AnalisisPageProps {
   onDataChange?: () => void;
+  refreshKey?: number;
 }
 
-export function AnalisisPage({ onDataChange }: AnalisisPageProps) {
+export function AnalisisPage({ onDataChange, refreshKey }: AnalisisPageProps) {
   const [stats, setStats] = useState<Stats>({
     total: 0, aktif: 0, terminasi: 0, kib_sudah: 0, kib_belum: 0,
     kawasan_hutan: 0, hibah_2026: 0, total_nilai_kib: 0,
@@ -35,7 +36,7 @@ export function AnalisisPage({ onDataChange }: AnalisisPageProps) {
       setKecSummary(statsRes.kecamatan_summary ?? []);
       setAllSites(sitesRes.data ?? []);
     });
-  }, []);
+  }, [refreshKey]); // Re-fetch when refreshKey changes
 
   const avgNilai = stats.kib_sudah > 0 ? stats.total_nilai_kib / stats.kib_sudah : 0;
 

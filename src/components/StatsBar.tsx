@@ -9,11 +9,17 @@ interface StatsBarProps {
 
 export function StatsBar({ refreshKey }: StatsBarProps) {
   const [stats, setStats] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
+    setLoading(true);
     fetch("/api/stats")
       .then(r => r.json())
-      .then(j => setStats(j.stats ?? {}));
+      .then(j => {
+        setStats(j.stats ?? {});
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [refreshKey]); // Re-fetch when refreshKey changes
 
   const cards = [
@@ -28,18 +34,25 @@ export function StatsBar({ refreshKey }: StatsBarProps) {
   ];
   
   const colorMap: Record<string, string> = {
-    blue: "bg-blue-50", emerald: "bg-emerald-50", red: "bg-red-50",
-    yellow: "bg-yellow-50", teal: "bg-teal-50", purple: "bg-purple-50",
+    blue: "bg-blue-50 border-blue-200", 
+    emerald: "bg-emerald-50 border-emerald-200", 
+    red: "bg-red-50 border-red-200",
+    yellow: "bg-yellow-50 border-yellow-200", 
+    teal: "bg-teal-50 border-teal-200", 
+    purple: "bg-purple-50 border-purple-200",
   };
   
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3">
       {cards.map(c => (
-        <div key={c.label} className="card p-4 flex items-center gap-3 hover:-translate-y-0.5 transition-transform">
-          <div className={`w-10 h-10 ${colorMap[c.color]} rounded-xl flex items-center justify-center text-xl shrink-0`}>{c.icon}</div>
-          <div>
-            <div className="text-xl font-bold text-gray-900 leading-none">{c.raw ?? (c.val ?? 0)}</div>
-            <div className="text-xs text-gray-500 mt-0.5">{c.label}</div>
+        <div 
+          key={c.label} 
+          className={`card p-3 sm:p-4 flex flex-col items-start gap-2 hover:-translate-y-0.5 transition-transform border ${colorMap[c.color]} ${loading ? 'opacity-50' : ''}`}
+        >
+          <div className="text-lg sm:text-xl">{c.icon}</div>
+          <div className="w-full">
+            <div className="text-lg sm:text-xl font-bold text-gray-900 leading-none">{c.raw ?? (c.val ?? 0)}</div>
+            <div className="text-xs text-gray-600 mt-0.5 line-clamp-2">{c.label}</div>
           </div>
         </div>
       ))}

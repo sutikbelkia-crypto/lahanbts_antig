@@ -30,7 +30,7 @@ export function AppShell() {
           <EditPage key={`edit-${refreshKey}`} onDataChange={triggerRefresh} />
         </div>
         <div className={page === "analisis" ? "block" : "hidden"}>
-          <AnalisisPage key={`analisis-${refreshKey}`} onDataChange={triggerRefresh} />
+          <AnalisisPage key={`analisis-${refreshKey}`} onDataChange={triggerRefresh} refreshKey={refreshKey} />
         </div>
       </div>
     </ToastProvider>
