@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+// Paksa Next.js selalu fetch data baru dari Supabase (tidak boleh cache di Vercel)
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -54,13 +58,21 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ 
-      data: data || [], 
-      total: count ?? 0,
-      page,
-      perPage,
-      totalPages: Math.ceil((count ?? 0) / perPage)
-    });
+    return NextResponse.json(
+      { 
+        data: data || [], 
+        total: count ?? 0,
+        page,
+        perPage,
+        totalPages: Math.ceil((count ?? 0) / perPage)
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+          "Pragma": "no-cache",
+        }
+      }
+    );
 
   } catch (error) {
     console.error("API error:", error);

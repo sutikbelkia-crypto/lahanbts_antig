@@ -95,15 +95,23 @@ export async function GET() {
       { label: "Lainnya", value: stats.total - stats.kawasan_apl - stats.kawasan_hutan },
     ];
 
-    return NextResponse.json({ 
-      stats, 
-      kecamatan_summary,
-      charts: {
-        status_distribution,
-        kib_distribution,
-        kawasan_distribution,
+    return NextResponse.json(
+      { 
+        stats, 
+        kecamatan_summary,
+        charts: {
+          status_distribution,
+          kib_distribution,
+          kawasan_distribution,
+        }
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+          "Pragma": "no-cache",
+        }
       }
-    });
+    );
 
   } catch (error) {
     console.error("API error:", error);

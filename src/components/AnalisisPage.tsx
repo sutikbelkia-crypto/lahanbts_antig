@@ -45,7 +45,7 @@ export function AnalisisPage({ refreshKey }: AnalisisPageProps) {
       const opts: RequestInit = { cache: "no-store", headers: { "Cache-Control": "no-cache" } };
       const [sRes, dRes] = await Promise.all([
         fetch(`/api/stats?t=${t}`, opts),
-        fetch(`/api/sites?page=1&perPage=500&t=${t}`, opts),
+        fetch(`/api/sites?page=1&perPage=9999&t=${t}`, opts),
       ]);
 
       if (!sRes.ok) {

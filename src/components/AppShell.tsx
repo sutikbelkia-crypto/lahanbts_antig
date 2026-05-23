@@ -22,7 +22,10 @@ export function AppShell() {
   return (
     <ToastProvider>
       <div className="min-h-screen bg-gray-100">
-        <Header activePage={page} onNavigate={setPage} />
+        <Header activePage={page} onNavigate={(p) => {
+          setPage(p);
+          triggerRefresh();
+        }} />
         <div className={page === "data"     ? "block" : "hidden"}>
           <DataPage key={`data-${refreshKey}`} onDataChange={triggerRefresh} refreshKey={refreshKey} />
         </div>
