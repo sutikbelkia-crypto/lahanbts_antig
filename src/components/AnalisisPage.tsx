@@ -76,11 +76,11 @@ export function AnalisisPage({ refreshKey }: AnalisisPageProps) {
 
   useEffect(() => { fetchData(); }, [refreshKey, fetchData]);
 
-  // Derived counts
+  // Derived counts from stats to ensure perfect integration
   const kawasan = {
-    apl:   allSites.filter(s => norm(s.kawasan) === "apl").length,
-    hutan: allSites.filter(s => norm(s.kawasan) === "hutan").length,
-    lain:  allSites.filter(s => norm(s.kawasan) !== "apl" && norm(s.kawasan) !== "hutan").length,
+    apl:   stats.kawasan_apl,
+    hutan: stats.kawasan_hutan,
+    lain:  stats.total - stats.kawasan_apl - stats.kawasan_hutan,
   };
   const hibah = {
     selesai:   stats.kib_sudah,
