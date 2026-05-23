@@ -30,10 +30,12 @@ export function AnalisisPage({ onDataChange, refreshKey }: AnalisisPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Fetch data function
-  const fetchAnalysisData = async () => {
+  const fetchAnalysisData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log("📊 AnalisisPage: Fetching data...");
       
       // Add cache busting with timestamp to force fresh data
       const timestamp = Date.now();
@@ -42,28 +44,40 @@ export function AnalisisPage({ onDataChange, refreshKey }: AnalisisPageProps) {
         fetch(`/api/sites?page=1&perPage=999&t=${timestamp}`, { cache: "no-store" }),
       ]);
 
-      if (!statsRes.ok || !sitesRes.ok) {
-        throw new Error("Failed to fetch data");
+      if (!statsRes.ok) {
+        const errorData = await statsRes.json();
+        throw new Error(`Stats API error: ${errorData.error}`);
+      }
+      
+      if (!sitesRes.ok) {
+        const errorData = await sitesRes.json();
+        throw new Error(`Sites API error: ${errorData.error}`);
       }
 
       const statsData = await statsRes.json();
       const sitesData = await sitesRes.json();
 
+      console.log("✅ AnalisisPage: Data fetched successfully", {
+        stats: statsData.stats,
+        sitesCount: sitesData.data?.length,
+      });
+
       setStats(statsData.stats ?? {});
       setKecSummary(statsData.kecamatan_summary ?? []);
       setAllSites(sitesData.data ?? []);
     } catch (err) {
-      console.error("Error fetching analysis data:", err);
-      setError("Gagal memuat data analisis");
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      console.error("❌ AnalisisPage: Error fetching data:", errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Fetch data on mount and when refreshKey changes
   useEffect(() => {
     fetchAnalysisData();
-  }, [refreshKey]);
+  }, [refreshKey, fetchAnalysisData]);
 
   const avgNilai = stats.kib_sudah > 0 ? stats.total_nilai_kib / stats.kib_sudah : 0;
 

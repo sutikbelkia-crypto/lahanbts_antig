@@ -14,13 +14,21 @@ export function StatsBar({ refreshKey }: StatsBarProps) {
   useEffect(() => {
     setLoading(true);
     // Add cache busting with timestamp to force fresh data
-    fetch(`/api/stats?t=${Date.now()}`, { cache: "no-store" })
-      .then(r => r.json())
+    const timestamp = Date.now();
+    fetch(`/api/stats?t=${timestamp}`, { cache: "no-store" })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(j => {
+        console.log("✅ StatsBar: Data fetched", j.stats);
         setStats(j.stats ?? {});
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(err => {
+        console.error("❌ StatsBar: Error fetching stats:", err);
+        setLoading(false);
+      });
   }, [refreshKey]); // Re-fetch when refreshKey changes
 
   const cards = [
