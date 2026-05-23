@@ -9,7 +9,11 @@ import { SiteModal } from "./SiteModal";
 import { ConfirmModal } from "./ConfirmModal";
 import { useToast } from "./Toast";
 
-export function EditPage() {
+interface EditPageProps {
+  onDataChange?: () => void;
+}
+
+export function EditPage({ onDataChange }: EditPageProps) {
   const { showToast } = useToast();
   const [rows, setRows] = useState<Site[]>([]);
   const [total, setTotal] = useState(0);
@@ -88,6 +92,8 @@ export function EditPage() {
       showToast(`Data ${data.site_id} berhasil ${editSite ? "diperbarui" : "ditambahkan"}`, "success");
       setModalOpen(false);
       fetchData();
+      // Trigger refresh untuk sinkronisasi dengan tab lain
+      if (onDataChange) onDataChange();
     } catch {
       showToast("Gagal menyimpan: Koneksi bermasalah", "error");
     }
@@ -108,6 +114,8 @@ export function EditPage() {
       setConfirmOpen(false);
       setDeleteId(null);
       fetchData();
+      // Trigger refresh untuk sinkronisasi dengan tab lain
+      if (onDataChange) onDataChange();
     } catch {
       showToast("Gagal menghapus: Koneksi bermasalah", "error");
     } finally {

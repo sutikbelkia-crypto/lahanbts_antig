@@ -21,7 +21,11 @@ const SORT_COLS: { key: keyof Site; label: string }[] = [
   { key: "kawasan",      label: "Kawasan" },
 ];
 
-export function DataPage() {
+interface DataPageProps {
+  onDataChange?: () => void;
+}
+
+export function DataPage({ onDataChange }: DataPageProps) {
   const { showToast } = useToast();
   const [rows, setRows]       = useState<Site[]>([]);
   const [total, setTotal]     = useState(0);
@@ -89,6 +93,8 @@ export function DataPage() {
       showToast(`Data ${data.site_id} berhasil diperbarui`, "success");
       setModalOpen(false);
       fetchData();
+      // Trigger refresh untuk sinkronisasi dengan tab lain
+      if (onDataChange) onDataChange();
     } catch {
       showToast("Gagal menyimpan: Koneksi bermasalah", "error");
     }
