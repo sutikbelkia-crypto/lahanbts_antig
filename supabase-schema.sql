@@ -41,16 +41,8 @@ CREATE TRIGGER update_sites_updated_at
   FOR EACH ROW 
   EXECUTE FUNCTION update_updated_at_column();
 
--- RLS (Row Level Security) - opsional, untuk keamanan
--- ALTER TABLE sites ENABLE ROW LEVEL SECURITY;
-
--- Policy untuk read (semua user bisa baca)
--- CREATE POLICY "Allow read access for all users" ON sites
---   FOR SELECT USING (true);
-
--- Policy untuk insert/update/delete (hanya authenticated users)
--- CREATE POLICY "Allow full access for authenticated users" ON sites
---   FOR ALL USING (auth.role() = 'authenticated');
+-- RLS: Disable untuk akses publik (aplikasi tanpa auth)
+ALTER TABLE sites DISABLE ROW LEVEL SECURITY;
 
 -- Komentar tabel
 COMMENT ON TABLE sites IS 'Data aset lahan BTS (Base Transceiver Station)';
