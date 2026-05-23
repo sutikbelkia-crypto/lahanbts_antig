@@ -76,24 +76,43 @@ export function EditPage() {
   async function handleSave(data: SiteFormData) {
     const url = editSite ? `/api/sites/${editSite.id}` : "/api/sites";
     const method = editSite ? "PATCH" : "POST";
-    const res = await fetch(url, {
-      method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
-    });
-    if (!res.ok) { showToast("Gagal menyimpan", "error"); return; }
-    showToast(`Data ${data.site_id} berhasil ${editSite ? "diperbarui" : "ditambahkan"}`, "success");
-    fetchData();
+    try {
+      const res = await fetch(url, {
+        method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok || json?.error) {
+        showToast(`Gagal menyimpan: ${json?.error ?? "Terjadi kesalahan"}`, "error");
+        return;
+      }
+      showToast(`Data ${data.site_id} berhasil ${editSite ? "diperbarui" : "ditambahkan"}`, "success");
+      setModalOpen(false);
+      fetchData();
+    } catch {
+      showToast("Gagal menyimpan: Koneksi bermasalah", "error");
+    }
   }
 
   async function handleDelete() {
     if (!deleteId) return;
     setDeleting(true);
-    const res = await fetch(`/api/sites/${deleteId}`, { method: "DELETE" });
-    if (!res.ok) { showToast("Gagal menghapus", "error"); setDeleting(false); return; }
-    showToast("Data berhasil dihapus", "success");
-    setConfirmOpen(false);
-    setDeleteId(null);
-    setDeleting(false);
-    fetchData();
+    try {
+      const res = await fetch(`/api/sites/${deleteId}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!res.ok || json?.error) {
+        showToast(`Gagal menghapus: ${json?.error ?? "Terjadi kesalahan"}`, "error");
+        setDeleting(false);
+        return;
+      }
+      showToast("Data berhasil dihapus", "success");
+      setConfirmOpen(false);
+      setDeleteId(null);
+      fetchData();
+    } catch {
+      showToast("Gagal menghapus: Koneksi bermasalah", "error");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   const deleteCandidate = deleteId ? rows.find(r => r.id === deleteId) : null;

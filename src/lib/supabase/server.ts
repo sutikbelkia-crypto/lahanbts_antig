@@ -1,33 +1,24 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
-export async function createClient() {
+/**
+ * Server-side Supabase client menggunakan SERVICE ROLE KEY
+ * - Bypass RLS untuk semua operasi CRUD
+ * - Hanya digunakan di API routes (server-side), tidak pernah ke browser
+ */
+export function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !supabaseKey) {
+  if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
-      "Missing Supabase environment variables. Please check your .env.local file."
+      "Missing Supabase environment variables. Pastikan NEXT_PUBLIC_SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY sudah diset."
     );
   }
 
-  const cookieStore = await cookies();
-  
-  return createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() { 
-        return cookieStore.getAll(); 
-      },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        } catch (error) {
-          // Handle cookie setting errors silently in server components
-          console.warn("Failed to set cookie:", error);
-        }
-      },
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
     },
   });
 }

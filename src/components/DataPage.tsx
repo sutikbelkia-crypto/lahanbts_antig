@@ -77,12 +77,21 @@ export function DataPage() {
   }
 
   async function handleSave(data: SiteFormData) {
-    const res = await fetch(`/api/sites/${editSite!.id}`, {
-      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
-    });
-    if (!res.ok) { showToast("Gagal menyimpan", "error"); return; }
-    showToast(`Data ${data.site_id} berhasil diperbarui`, "success");
-    fetchData();
+    try {
+      const res = await fetch(`/api/sites/${editSite!.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok || json?.error) {
+        showToast(`Gagal menyimpan: ${json?.error ?? "Terjadi kesalahan"}`, "error");
+        return;
+      }
+      showToast(`Data ${data.site_id} berhasil diperbarui`, "success");
+      setModalOpen(false);
+      fetchData();
+    } catch {
+      showToast("Gagal menyimpan: Koneksi bermasalah", "error");
+    }
   }
 
   function exportCSV() {
