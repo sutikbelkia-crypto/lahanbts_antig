@@ -36,6 +36,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_sites_updated_at ON sites;
 CREATE TRIGGER update_sites_updated_at 
   BEFORE UPDATE ON sites 
   FOR EACH ROW 
