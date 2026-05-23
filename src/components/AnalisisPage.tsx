@@ -26,17 +26,44 @@ export function AnalisisPage({ onDataChange, refreshKey }: AnalisisPageProps) {
   });
   const [kecSummary, setKecSummary] = useState<KecamatanSummary[]>([]);
   const [allSites, setAllSites] = useState<Site[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch data function
+  const fetchAnalysisData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Add cache busting with timestamp to force fresh data
+      const timestamp = Date.now();
+      const [statsRes, sitesRes] = await Promise.all([
+        fetch(`/api/stats?t=${timestamp}`, { cache: "no-store" }),
+        fetch(`/api/sites?page=1&perPage=999&t=${timestamp}`, { cache: "no-store" }),
+      ]);
+
+      if (!statsRes.ok || !sitesRes.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const statsData = await statsRes.json();
+      const sitesData = await sitesRes.json();
+
+      setStats(statsData.stats ?? {});
+      setKecSummary(statsData.kecamatan_summary ?? []);
+      setAllSites(sitesData.data ?? []);
+    } catch (err) {
+      console.error("Error fetching analysis data:", err);
+      setError("Gagal memuat data analisis");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data on mount and when refreshKey changes
   useEffect(() => {
-    Promise.all([
-      fetch("/api/stats").then(r => r.json()),
-      fetch("/api/sites?page=1&perPage=999").then(r => r.json()),
-    ]).then(([statsRes, sitesRes]) => {
-      setStats(statsRes.stats ?? {});
-      setKecSummary(statsRes.kecamatan_summary ?? []);
-      setAllSites(sitesRes.data ?? []);
-    });
-  }, [refreshKey]); // Re-fetch when refreshKey changes
+    fetchAnalysisData();
+  }, [refreshKey]);
 
   const avgNilai = stats.kib_sudah > 0 ? stats.total_nilai_kib / stats.kib_sudah : 0;
 

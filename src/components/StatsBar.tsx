@@ -13,7 +13,8 @@ export function StatsBar({ refreshKey }: StatsBarProps) {
   
   useEffect(() => {
     setLoading(true);
-    fetch("/api/stats")
+    // Add cache busting with timestamp to force fresh data
+    fetch(`/api/stats?t=${Date.now()}`, { cache: "no-store" })
       .then(r => r.json())
       .then(j => {
         setStats(j.stats ?? {});

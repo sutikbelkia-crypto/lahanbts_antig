@@ -37,8 +37,9 @@ export function EditPage({ onDataChange }: EditPageProps) {
     const params = new URLSearchParams({
       page: String(page), perPage: String(perPage),
       search, status: fStatus, kib: fKIB,
+      t: String(Date.now()), // Cache busting
     });
-    const res = await fetch(`/api/sites?${params}`);
+    const res = await fetch(`/api/sites?${params}`, { cache: "no-store" });
     const json = await res.json();
     setRows(json.data ?? []);
     setTotal(json.total ?? 0);
