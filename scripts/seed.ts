@@ -61,7 +61,6 @@ const dataBTS = [
   { no: 48, siteId: "KLB00323", siteIdOpsel: "ZZJ738", kecamatan: "SEMITAU", desa: "SEKEDAU", status: "AKTIF", tercatatKIB: "Belum", nilaiKIB: null, luas: null, sertifikat: null, kawasan: "APL", keterangan: "Dokumen Hibah belum di sampaikan" },
   { no: 49, siteId: "KLB00324", siteIdOpsel: "ZZJ598", kecamatan: "SEBERUANG", desa: "BATI", status: "AKTIF", tercatatKIB: "Sudah", nilaiKIB: 4000000, luas: 400, sertifikat: "Belum bersertifikat", kawasan: "APL", keterangan: "" },
   { no: 50, siteId: "KLB00326", siteIdOpsel: "ZZJ739", kecamatan: "SEBERUANG", desa: "TANJUNG KELILING", status: "AKTIF", tercatatKIB: "Belum", nilaiKIB: null, luas: null, sertifikat: null, kawasan: "APL", keterangan: "Dokumen Hibah belum di sampaikan" },
-];
   { no: 51, siteId: "KLB00327", siteIdOpsel: "ZZJ740", kecamatan: "BATANG LUPAR", desa: "SUNGAI AJUNG", status: "AKTIF", tercatatKIB: "Belum", nilaiKIB: null, luas: null, sertifikat: null, kawasan: "Hutan", keterangan: "Dokumen Hibah belum di sampaikan" },
   { no: 52, siteId: "KLB00328", siteIdOpsel: "ZZJ741", kecamatan: "BATANG LUPAR", desa: "SUNGAI ABAU", status: "AKTIF", tercatatKIB: "Belum", nilaiKIB: null, luas: null, sertifikat: null, kawasan: "APL", keterangan: "Dokumen Hibah belum di sampaikan" },
   { no: 53, siteId: "KLB00332", siteIdOpsel: "ZZJ742", kecamatan: "EMPANANG", desa: "TINTIN PENINJAU", status: "AKTIF", tercatatKIB: "Belum", nilaiKIB: null, luas: null, sertifikat: null, kawasan: "APL", keterangan: "Dokumen Hibah belum di sampaikan" },

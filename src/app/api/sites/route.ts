@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
     const sortCol  = searchParams.get("sortCol")  ?? "id";
     const sortDir  = searchParams.get("sortDir")  ?? "asc";
 
-    // Validate pagination parameters (allow up to 1000 for analytics/export)
-    if (page < 1 || perPage < 1 || perPage > 1000) {
+    // Validate pagination parameters
+    if (page < 1 || perPage < 1 || perPage > 100) {
       return NextResponse.json(
         { error: "Invalid pagination parameters" }, 
         { status: 400 }
