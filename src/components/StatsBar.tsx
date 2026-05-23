@@ -13,27 +13,47 @@ export function StatsBar({ refreshKey }: StatsBarProps) {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-    // Add cache busting with timestamp to force fresh data
-    const timestamp = Date.now();
-    fetch(`/api/stats?t=${timestamp}`, { cache: "no-store" })
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then(j => {
-        console.log("✅ StatsBar: Data fetched", j.stats);
-        setStats(j.stats ?? {});
+    const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Add cache busting with timestamp to force fresh data
+        const timestamp = Date.now();
+        const response = await fetch(`/api/stats?t=${timestamp}`, { 
+          cache: "no-store",
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const json = await response.json();
+        
+        // Validate response structure
+        if (!json.stats || typeof json.stats !== 'object') {
+          throw new Error('Invalid response: missing stats object');
+        }
+        
+        console.log("✅ StatsBar: Data fetched successfully", {
+          total: json.stats.total,
+          aktif: json.stats.aktif,
+          terminasi: json.stats.terminasi,
+        });
+        
+        setStats(json.stats);
         setError(null);
-        setLoading(false);
-      })
-      .catch(err => {
+      } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
         console.error("❌ StatsBar: Error fetching stats:", errorMsg);
         setError(errorMsg);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    
+    fetchStats();
   }, [refreshKey]); // Re-fetch when refreshKey changes
 
   // Show error if fetch failed

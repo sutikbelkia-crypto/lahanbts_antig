@@ -18,21 +18,37 @@ export async function GET() {
     const d = data ?? [];
     console.log(`✅ /api/stats: Fetched ${d.length} records from database`);
     
-    // Calculate main statistics
+    // Normalize data for consistent filtering (case-insensitive)
+    const normalizeString = (str: string | null | undefined): string => {
+      return (str ?? "").toLowerCase().trim();
+    };
+    
+    // Calculate main statistics with case-insensitive filtering
     const stats = {
       total:          d.length,
-      aktif:          d.filter(r => r.status === "AKTIF").length,
-      terminasi:      d.filter(r => r.status?.includes("Terminasi")).length,
-      kib_sudah:      d.filter(r => r.tercatat_kib?.toLowerCase() === "sudah").length,
-      kib_belum:      d.filter(r => r.tercatat_kib === "Belum").length,
-      kawasan_hutan:  d.filter(r => r.kawasan === "Hutan").length,
-      kawasan_apl:    d.filter(r => r.kawasan === "APL").length,
-      hibah_2026:     d.filter(r => r.keterangan?.toLowerCase().includes("2026")).length,
+      aktif:          d.filter(r => normalizeString(r.status) === "aktif").length,
+      terminasi:      d.filter(r => normalizeString(r.status).includes("terminasi")).length,
+      kib_sudah:      d.filter(r => normalizeString(r.tercatat_kib) === "sudah").length,
+      kib_belum:      d.filter(r => normalizeString(r.tercatat_kib) === "belum").length,
+      kawasan_hutan:  d.filter(r => normalizeString(r.kawasan) === "hutan").length,
+      kawasan_apl:    d.filter(r => normalizeString(r.kawasan) === "apl").length,
+      hibah_2026:     d.filter(r => normalizeString(r.keterangan).includes("2026")).length,
       total_nilai_kib: d.reduce((sum: number, r) => sum + (r.nilai_kib ?? 0), 0),
-      avg_nilai_kib:  d.filter(r => r.nilai_kib).length > 0 
-        ? Math.round(d.reduce((sum: number, r) => sum + (r.nilai_kib ?? 0), 0) / d.filter(r => r.nilai_kib).length)
+      avg_nilai_kib:  d.filter(r => r.nilai_kib && r.nilai_kib > 0).length > 0 
+        ? Math.round(d.reduce((sum: number, r) => sum + (r.nilai_kib ?? 0), 0) / d.filter(r => r.nilai_kib && r.nilai_kib > 0).length)
         : 0,
     };
+    
+    // Log detailed breakdown for debugging
+    console.log(`📊 Stats breakdown:`, {
+      total: stats.total,
+      aktif: stats.aktif,
+      terminasi: stats.terminasi,
+      kib_sudah: stats.kib_sudah,
+      kib_belum: stats.kib_belum,
+      kawasan_hutan: stats.kawasan_hutan,
+      kawasan_apl: stats.kawasan_apl,
+    });
 
     // Per-kecamatan summary
     const kecMap: Record<string, typeof d> = {};
@@ -47,15 +63,15 @@ export async function GET() {
       .map(([kec, rows]) => ({
         kecamatan:     kec,
         total:         rows.length,
-        aktif:         rows.filter(r => r.status === "AKTIF").length,
-        terminasi:     rows.filter(r => r.status?.includes("Terminasi")).length,
-        kib_sudah:     rows.filter(r => r.tercatat_kib?.toLowerCase() === "sudah").length,
-        kib_belum:     rows.filter(r => r.tercatat_kib === "Belum").length,
-        kawasan_hutan: rows.filter(r => r.kawasan === "Hutan").length,
-        kawasan_apl:   rows.filter(r => r.kawasan === "APL").length,
+        aktif:         rows.filter(r => normalizeString(r.status) === "aktif").length,
+        terminasi:     rows.filter(r => normalizeString(r.status).includes("terminasi")).length,
+        kib_sudah:     rows.filter(r => normalizeString(r.tercatat_kib) === "sudah").length,
+        kib_belum:     rows.filter(r => normalizeString(r.tercatat_kib) === "belum").length,
+        kawasan_hutan: rows.filter(r => normalizeString(r.kawasan) === "hutan").length,
+        kawasan_apl:   rows.filter(r => normalizeString(r.kawasan) === "apl").length,
         total_nilai:   rows.reduce((sum: number, r) => sum + (r.nilai_kib ?? 0), 0),
-        avg_nilai:     rows.filter(r => r.nilai_kib).length > 0 
-          ? Math.round(rows.reduce((sum: number, r) => sum + (r.nilai_kib ?? 0), 0) / rows.filter(r => r.nilai_kib).length)
+        avg_nilai:     rows.filter(r => r.nilai_kib && r.nilai_kib > 0).length > 0 
+          ? Math.round(rows.reduce((sum: number, r) => sum + (r.nilai_kib ?? 0), 0) / rows.filter(r => r.nilai_kib && r.nilai_kib > 0).length)
           : 0,
       }));
 
