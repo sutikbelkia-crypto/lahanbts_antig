@@ -8,14 +8,15 @@ export async function GET() {
     const { data, error } = await supabase.from("sites").select("*");
     
     if (error) {
-      console.error("Database error:", error);
+      console.error("❌ Database error in /api/stats:", error);
       return NextResponse.json(
-        { error: "Failed to fetch statistics" }, 
+        { error: "Failed to fetch statistics", details: error.message }, 
         { status: 500 }
       );
     }
 
     const d = data ?? [];
+    console.log(`✅ /api/stats: Fetched ${d.length} records from database`);
     
     // Calculate main statistics
     const stats = {

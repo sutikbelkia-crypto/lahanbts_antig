@@ -154,6 +154,34 @@ export function AnalisisPage({ onDataChange, refreshKey }: AnalisisPageProps) {
         <button onClick={() => window.print()} className="btn btn-outline no-print">🖨 Cetak Laporan</button>
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+          <div className="text-2xl">⚠️</div>
+          <div>
+            <h3 className="font-semibold text-red-800">Error Memuat Data</h3>
+            <p className="text-sm text-red-700 mt-1">{error}</p>
+            <button 
+              onClick={() => fetchAnalysisData()}
+              className="mt-2 text-sm text-red-600 hover:text-red-800 font-medium underline"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+          <div className="animate-spin text-2xl">⏳</div>
+          <div>
+            <h3 className="font-semibold text-blue-800">Memuat Data...</h3>
+            <p className="text-sm text-blue-700">Mengambil data dari database</p>
+          </div>
+        </div>
+      )}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <KPICard icon="📡" label="Total Site BTS" value={stats.total} sub="Seluruh wilayah" color="blue" />
