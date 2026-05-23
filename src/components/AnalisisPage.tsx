@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Site, KecamatanSummary } from "@/types";
 import { fmt, fmtShort, pctOf } from "@/lib/utils";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from "chart.js";
@@ -10,8 +10,8 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 
 interface Stats {
   total: number; aktif: number; terminasi: number;
-  kib_sudah: number; kib_belum: number; kawasan_hutan: number;
-  hibah_2026: number; total_nilai_kib: number;
+  kib_sudah: number; kib_belum: number; kawasan_hutan: number; kawasan_apl: number;
+  hibah_2026: number; total_nilai_kib: number; avg_nilai_kib: number;
 }
 
 interface AnalisisPageProps {
@@ -72,14 +72,14 @@ export function AnalisisPage({ onDataChange, refreshKey }: AnalisisPageProps) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, []); // Empty dependency array - function doesn't depend on external state
 
   // Fetch data on mount and when refreshKey changes
   useEffect(() => {
     fetchAnalysisData();
   }, [refreshKey, fetchAnalysisData]);
 
-  const avgNilai = stats.kib_sudah > 0 ? stats.total_nilai_kib / stats.kib_sudah : 0;
+  const avgNilai = stats.kib_sudah > 0 ? (stats.total_nilai_kib ?? 0) / stats.kib_sudah : 0;
 
   // Chart data
   const statusData = {

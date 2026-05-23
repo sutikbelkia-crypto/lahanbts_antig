@@ -10,9 +10,11 @@ interface StatsBarProps {
 export function StatsBar({ refreshKey }: StatsBarProps) {
   const [stats, setStats] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     setLoading(true);
+    setError(null);
     // Add cache busting with timestamp to force fresh data
     const timestamp = Date.now();
     fetch(`/api/stats?t=${timestamp}`, { cache: "no-store" })
@@ -23,13 +25,29 @@ export function StatsBar({ refreshKey }: StatsBarProps) {
       .then(j => {
         console.log("✅ StatsBar: Data fetched", j.stats);
         setStats(j.stats ?? {});
+        setError(null);
         setLoading(false);
       })
       .catch(err => {
-        console.error("❌ StatsBar: Error fetching stats:", err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        console.error("❌ StatsBar: Error fetching stats:", errorMsg);
+        setError(errorMsg);
         setLoading(false);
       });
   }, [refreshKey]); // Re-fetch when refreshKey changes
+
+  // Show error if fetch failed
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+        <div className="text-2xl">⚠️</div>
+        <div>
+          <h3 className="font-semibold text-red-800">Error Memuat Statistik</h3>
+          <p className="text-sm text-red-700 mt-1">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   const cards = [
     { icon: "📡", label: "Total Site",    val: stats.total,          color: "blue" },
