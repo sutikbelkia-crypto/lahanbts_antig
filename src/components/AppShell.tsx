@@ -24,13 +24,13 @@ export function AppShell() {
       <div className="min-h-screen bg-gray-100">
         <Header activePage={page} onNavigate={setPage} />
         <div className={page === "data"     ? "block" : "hidden"}>
-          <DataPage key={`data-${refreshKey}`} onDataChange={triggerRefresh} />
+          <DataPage key={`data-${refreshKey}`} onDataChange={triggerRefresh} refreshKey={refreshKey} />
         </div>
         <div className={page === "edit"     ? "block" : "hidden"}>
           <EditPage key={`edit-${refreshKey}`} onDataChange={triggerRefresh} />
         </div>
         <div className={page === "analisis" ? "block" : "hidden"}>
-          <AnalisisPage key={`analisis-${refreshKey}`} />
+          <AnalisisPage key={`analisis-${refreshKey}`} onDataChange={triggerRefresh} />
         </div>
       </div>
     </ToastProvider>

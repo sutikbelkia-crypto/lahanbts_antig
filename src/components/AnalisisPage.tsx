@@ -14,7 +14,11 @@ interface Stats {
   hibah_2026: number; total_nilai_kib: number;
 }
 
-export function AnalisisPage() {
+interface AnalisisPageProps {
+  onDataChange?: () => void;
+}
+
+export function AnalisisPage({ onDataChange }: AnalisisPageProps) {
   const [stats, setStats] = useState<Stats>({
     total: 0, aktif: 0, terminasi: 0, kib_sudah: 0, kib_belum: 0,
     kawasan_hutan: 0, hibah_2026: 0, total_nilai_kib: 0,
