@@ -23,28 +23,49 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
 
 async function createUser() {
   const username = "admin";
-  const password = "password123";
+  const password = "admin123";
   const email = `${username}@btsaset.local`; // Dummy email for username login
 
-  console.log(`Creating user: ${username}...`);
+  console.log(`Setting up user: ${username}...`);
 
-  const { data, error } = await supabase.auth.admin.createUser({
-    email: email,
-    password: password,
-    email_confirm: true, // Auto confirm
-  });
+  const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers();
+  
+  if (listError) {
+    console.error("Error checking existing users:", listError.message);
+    return;
+  }
 
-  if (error) {
-    if (error.message.includes('already been registered')) {
-        console.log(`User ${username} already exists.`);
+  const existingUser = existingUsers.users.find(u => u.email === email);
+
+  if (existingUser) {
+    console.log(`User ${username} already exists. Updating password...`);
+    const { data, error } = await supabase.auth.admin.updateUserById(existingUser.id, {
+      password: password
+    });
+
+    if (error) {
+      console.error("Error updating user password:", error.message);
     } else {
-        console.error("Error creating user:", error.message);
+      console.log("Password updated successfully!");
+      console.log(`Username: ${username}`);
+      console.log(`New Password: ${password}`);
     }
   } else {
-    console.log("User created successfully!");
-    console.log(`Username: ${username}`);
-    console.log(`Password: ${password}`);
-    console.log(`ID: ${data.user.id}`);
+    console.log(`Creating new user: ${username}...`);
+    const { data, error } = await supabase.auth.admin.createUser({
+      email: email,
+      password: password,
+      email_confirm: true, // Auto confirm
+    });
+
+    if (error) {
+      console.error("Error creating user:", error.message);
+    } else {
+      console.log("User created successfully!");
+      console.log(`Username: ${username}`);
+      console.log(`Password: ${password}`);
+      console.log(`ID: ${data.user.id}`);
+    }
   }
 }
 
