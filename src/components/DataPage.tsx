@@ -105,15 +105,36 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
 
   async function fetchAllExportData() {
     showToast("Menyiapkan data unduhan...", "info");
-    const params = new URLSearchParams({
-      page: "1", perPage: "999999",
-      search, status: fStatus, kib: fKIB, kawasan: fKawasan,
-      kecamatan: fKecamatan, sortCol: String(sortCol), sortDir,
-      t: String(Date.now()),
-    });
-    const res = await fetch(`/api/sites?${params}`);
-    const json = await res.json();
-    return json.data || [];
+    const allData: Site[] = [];
+    const perPageNum = 1000;
+    let currentPage = 1;
+    let totalPages = 1;
+
+    try {
+      while (currentPage <= totalPages) {
+        const params = new URLSearchParams({
+          page: String(currentPage), perPage: String(perPageNum),
+          search, status: fStatus, kib: fKIB, kawasan: fKawasan,
+          kecamatan: fKecamatan, sortCol: String(sortCol), sortDir,
+          t: String(Date.now()),
+        });
+        const res = await fetch(`/api/sites?${params}`);
+        if (!res.ok) throw new Error("Gagal mengambil data");
+        const json = await res.json();
+        
+        if (json.data && Array.isArray(json.data)) {
+          allData.push(...json.data);
+        }
+        
+        totalPages = json.totalPages || 1;
+        currentPage++;
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("Terjadi kesalahan saat mengambil semua data", "error");
+    }
+
+    return allData;
   }
 
   async function exportCSV() {
