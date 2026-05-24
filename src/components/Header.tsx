@@ -2,6 +2,9 @@
 
 import { PageKey } from "./AppShell";
 
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
 const tabs: { key: PageKey; label: string; icon: string }[] = [
   { key: "data",     label: "Data Aset",   icon: "📋" },
   { key: "edit",     label: "Kelola Data", icon: "✏️" },
@@ -14,16 +17,35 @@ interface HeaderProps {
 }
 
 export function Header({ activePage, onNavigate }: HeaderProps) {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  };
+
   return (
     <header className="bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg sticky top-0 z-50 no-print">
-      <div className="max-w-screen-2xl mx-auto px-6 py-4 flex items-center gap-4">
-        <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center text-2xl shrink-0">
-          📡
+      <div className="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center text-2xl shrink-0">
+            📡
+          </div>
+          <div>
+            <h1 className="text-lg font-bold leading-tight">Pengelolaan Aset Tetap – Lahan BTS</h1>
+            <p className="text-xs text-blue-200 mt-0.5">Sistem Informasi Manajemen Aset Lahan Base Transceiver Station</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-lg font-bold leading-tight">Pengelolaan Aset Tetap – Lahan BTS</h1>
-          <p className="text-xs text-blue-200 mt-0.5">Sistem Informasi Manajemen Aset Lahan Base Transceiver Station</p>
-        </div>
+        
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+        >
+          <span className="material-symbols-outlined text-[18px]">logout</span>
+          Keluar
+        </button>
       </div>
 
       {/* Nav Tabs */}
