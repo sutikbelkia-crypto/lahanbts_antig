@@ -10,7 +10,8 @@
     "seed": "npx tsx scripts/seed.ts",
     "test-connection": "npx tsx scripts/test-connection.ts",
     "setup": "npx tsx scripts/setup.ts",
-    "github-help": "npx tsx scripts/github-setup.ts"
+    "github-help": "npx tsx scripts/github-setup.ts",
+    "create-user": "npx tsx scripts/create-user.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
