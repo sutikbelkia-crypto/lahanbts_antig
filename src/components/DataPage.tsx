@@ -103,9 +103,23 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
     }
   }
 
-  function exportCSV() {
+  async function fetchAllExportData() {
+    showToast("Menyiapkan data unduhan...", "info");
+    const params = new URLSearchParams({
+      page: "1", perPage: "999999",
+      search, status: fStatus, kib: fKIB, kawasan: fKawasan,
+      kecamatan: fKecamatan, sortCol: String(sortCol), sortDir,
+      t: String(Date.now()),
+    });
+    const res = await fetch(`/api/sites?${params}`);
+    const json = await res.json();
+    return json.data || [];
+  }
+
+  async function exportCSV() {
+    const exportData = await fetchAllExportData();
     const headers = ["No","Site ID","Site ID Opsel","Kecamatan","Desa","Status","KIB","Nilai KIB","Luas","Kawasan","Keterangan"];
-    const csvRows = rows.map((r, i) => [
+    const csvRows = exportData.map((r: Site, i: number) => [
       i+1, r.site_id, r.site_id_opsel, r.kecamatan, r.desa, r.status,
       r.tercatat_kib, r.nilai_kib ?? "", r.luas ?? "", r.kawasan, r.keterangan ?? ""
     ]);
@@ -115,13 +129,14 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
     const a = document.createElement("a"); a.href = url;
     a.download = `Aset_BTS_${new Date().toISOString().slice(0,10)}.csv`; a.click();
     URL.revokeObjectURL(url);
-    showToast(`Export ${rows.length} data berhasil`, "success");
+    showToast(`Export ${exportData.length} data CSV berhasil`, "success");
   }
 
-  function exportExcel() {
+  async function exportExcel() {
+    const exportData = await fetchAllExportData();
     import("xlsx").then((XLSX) => {
       const headers = ["No","Site ID","Site ID Opsel","Kecamatan","Desa","Status","KIB","Nilai KIB","Luas","Kawasan","Keterangan"];
-      const excelRows = rows.map((r, i) => [
+      const excelRows = exportData.map((r: Site, i: number) => [
         i+1, r.site_id, r.site_id_opsel, r.kecamatan, r.desa, r.status,
         r.tercatat_kib, r.nilai_kib ?? "", r.luas ?? "", r.kawasan, r.keterangan ?? ""
       ]);
@@ -130,7 +145,7 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Aset BTS");
       XLSX.writeFile(wb, `Aset_BTS_${new Date().toISOString().slice(0,10)}.xlsx`);
-      showToast(`Export ${rows.length} data Excel berhasil`, "success");
+      showToast(`Export ${exportData.length} data Excel berhasil`, "success");
     });
   }
 
