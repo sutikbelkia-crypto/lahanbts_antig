@@ -118,6 +118,22 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
     showToast(`Export ${rows.length} data berhasil`, "success");
   }
 
+  function exportExcel() {
+    import("xlsx").then((XLSX) => {
+      const headers = ["No","Site ID","Site ID Opsel","Kecamatan","Desa","Status","KIB","Nilai KIB","Luas","Kawasan","Keterangan"];
+      const excelRows = rows.map((r, i) => [
+        i+1, r.site_id, r.site_id_opsel, r.kecamatan, r.desa, r.status,
+        r.tercatat_kib, r.nilai_kib ?? "", r.luas ?? "", r.kawasan, r.keterangan ?? ""
+      ]);
+      const data = [headers, ...excelRows];
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Aset BTS");
+      XLSX.writeFile(wb, `Aset_BTS_${new Date().toISOString().slice(0,10)}.xlsx`);
+      showToast(`Export ${rows.length} data Excel berhasil`, "success");
+    });
+  }
+
   const SortIcon = ({ col }: { col: keyof Site }) =>
     <span className={`ml-1 text-xs ${sortCol === col ? "text-blue-600" : "text-gray-300"}`}>
       {sortCol === col ? (sortDir === "asc" ? "↑" : "↓") : "↕"}
@@ -173,6 +189,7 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
           <div className="flex gap-2">
             <button onClick={resetFilters} className="btn btn-outline">↺ Reset</button>
             <button onClick={exportCSV} className="btn btn-success">⬇ CSV</button>
+            <button onClick={exportExcel} className="btn btn-success">⬇ Excel</button>
             <button onClick={() => window.print()} className="btn btn-outline">🖨</button>
           </div>
         </div>
