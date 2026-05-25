@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [remember, setRemember] = useState(false);
   
   const router = useRouter();
   const supabase = createClient();
@@ -22,6 +23,9 @@ export default function LoginPage() {
     // Map username to a dummy email for Supabase Auth compatibility
     // Since Supabase Auth requires email or phone.
     const email = `${username}@btsaset.local`;
+
+    // Set cookie sb-remember-me yang akan dibaca oleh browser client & middleware
+    document.cookie = `sb-remember-me=${remember}; path=/; max-age=31536000`;
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -172,6 +176,8 @@ export default function LoginPage() {
                     className="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary"
                     id="remember"
                     type="checkbox"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
                   />
                   <label
                     className="ml-2 font-label-sm text-label-sm text-on-surface-variant"
