@@ -111,6 +111,38 @@
 
 /* Print */
 @media print {
+  @page { margin: 1cm; }
   .no-print { display: none !important; }
-  .card { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+  
+  body, html, .min-h-screen {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    display: block !important;
+  }
+  
+  /* Reset max-height dan overflow yang memotong konten */
+  .max-h-52, 
+  .overflow-y-auto, 
+  .overflow-x-auto, 
+  .overflow-auto,
+  .overflow-hidden,
+  .table-wrap {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Hilangkan bayangan & atur border */
+  .card, .bg-white { 
+    box-shadow: none !important; 
+    border: 1px solid #e2e8f0 !important; 
+  }
+
+  /* Cegah tabel dan elemen penting terpotong separuh di ujung halaman */
+  tr, td, th, thead {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    position: static !important;
+  }
 }

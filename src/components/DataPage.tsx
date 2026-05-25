@@ -44,6 +44,8 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
   const [kecList, setKecList] = useState<string[]>([]);
   const [editSite, setEditSite] = useState<Site | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [printData, setPrintData] = useState<Site[]>([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -170,6 +172,20 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
     });
   }
 
+  async function handlePrint() {
+    setIsPrinting(true);
+    showToast("Menyiapkan dokumen cetak...", "info");
+    const allData = await fetchAllExportData();
+    setPrintData(allData);
+    
+    // Tunggu render React selesai, lalu buka dialog print
+    setTimeout(() => {
+      window.print();
+      setIsPrinting(false);
+      setPrintData([]);
+    }, 800);
+  }
+
   const SortIcon = ({ col }: { col: keyof Site }) =>
     <span className={`ml-1 text-xs ${sortCol === col ? "text-blue-600" : "text-gray-300"}`}>
       {sortCol === col ? (sortDir === "asc" ? "↑" : "↓") : "↕"}
@@ -226,7 +242,9 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
             <button onClick={resetFilters} className="btn btn-outline">↺ Reset</button>
             <button onClick={exportCSV} className="btn btn-success">⬇ CSV</button>
             <button onClick={exportExcel} className="btn btn-success">⬇ Excel</button>
-            <button onClick={() => window.print()} className="btn btn-outline">🖨</button>
+            <button onClick={handlePrint} disabled={isPrinting} className="btn btn-outline disabled:opacity-50">
+              {isPrinting ? "⏳" : "🖨"}
+            </button>
           </div>
         </div>
       </div>
@@ -249,19 +267,19 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
                   </th>
                 ))}
                 <th>Keterangan</th>
-                <th>Aksi</th>
+                <th className="no-print">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loading && !isPrinting ? (
                 <tr><td colSpan={12} className="text-center py-12 text-gray-400">Memuat data…</td></tr>
-              ) : rows.length === 0 ? (
+              ) : (isPrinting ? printData.length : rows.length) === 0 ? (
                 <tr><td colSpan={12} className="text-center py-12 text-gray-400">
                   <div className="text-4xl mb-2">🔍</div>Tidak ada data yang sesuai filter
                 </td></tr>
-              ) : rows.map((r, i) => (
+              ) : (isPrinting ? printData : rows).map((r, i) => (
                 <tr key={r.id}>
-                  <td className="text-gray-400 text-xs">{(page-1)*perPage + i + 1}</td>
+                  <td className="text-gray-400 text-xs">{isPrinting ? i + 1 : (page-1)*perPage + i + 1}</td>
                   <td className="font-bold text-blue-700 font-mono text-xs">{r.site_id}</td>
                   <td className="font-mono text-xs text-gray-500">{r.site_id_opsel}</td>
                   <td className="font-medium">{r.kecamatan}</td>
@@ -272,7 +290,7 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
                   <td className="text-center">{fmtLuas(r.luas)}</td>
                   <td><KawasanBadge val={r.kawasan} /></td>
                   <td><KeteranganBadge ket={r.keterangan} /></td>
-                  <td>
+                  <td className="no-print">
                     <div className="flex gap-1">
                       <button className="btn btn-outline btn-sm" onClick={() => { setEditSite(r); setModalOpen(true); }}>✏️</button>
                     </div>
@@ -282,8 +300,10 @@ export function DataPage({ onDataChange, refreshKey }: DataPageProps) {
             </tbody>
           </table>
         </div>
-        <Pagination page={page} perPage={perPage} total={total}
-          onPage={p => setPage(p)} onPerPage={n => { setPerPage(n); setPage(1); }} />
+        {!isPrinting && (
+          <Pagination page={page} perPage={perPage} total={total}
+            onPage={p => setPage(p)} onPerPage={n => { setPerPage(n); setPage(1); }} />
+        )}
       </div>
 
       <SiteModal open={modalOpen} site={editSite} onClose={() => setModalOpen(false)}
